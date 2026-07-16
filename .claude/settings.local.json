@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check \"/home/filipe/Área de trabalho/Raspadinha/script.js\")",
+      "Bash(zip -r raspadinha.zip index.html styles.css script.js config.public.js config.secret.js sheets-config.js supabase-config.js)"
+    ]
+  }
+}

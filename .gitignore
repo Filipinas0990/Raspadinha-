@@ -1,0 +1,16 @@
+# Arquivos de configuração secretos - NUNCA commitar!
+config.secret.js
+
+# Node modules (se usar no futuro)
+node_modules/
+package-lock.json
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
