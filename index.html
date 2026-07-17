@@ -9,6 +9,24 @@
 <body>
   <div class="container">
 
+    <!-- Banner promocional (dados vêm do painel admin / Supabase) -->
+    <div class="promo-banner" id="promoBanner">
+      <div class="promo-inner">
+        <div class="promo-left">
+          <span class="promo-percent" id="promoPercent">--%</span>
+          <span class="promo-desconto">DESCONTO</span>
+        </div>
+        <div class="promo-divider"></div>
+        <div class="promo-right">
+          <div class="promo-timer">
+            <span class="promo-timer-label">⏱ Termina em</span>
+            <span class="promo-timer-clock" id="promoTimer">08:00</span>
+          </div>
+          <span class="promo-cat">Categoria: <strong id="promoNicho">--</strong></span>
+        </div>
+      </div>
+    </div>
+
     <!-- Cartão da raspadinha -->
     <div class="card locked" id="card">
       <h2>Raspe e Ganhe</h2>
@@ -32,7 +50,8 @@
       </ul>
 
       <form id="playForm" novalidate>
-        <input type="tel" id="phone" placeholder="Telefone" autocomplete="tel" required />
+        <label for="phone" class="field-label">📱 Digite seu telefone com DDD:</label>
+        <input type="tel" id="phone" placeholder="Ex: (64) 99999-9999" autocomplete="tel" inputmode="numeric" required />
         <button type="submit" class="btn btn-play" id="playBtn">Jogar</button>
       </form>
 

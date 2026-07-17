@@ -13,6 +13,9 @@ const hint        = document.getElementById("hint");
 const prizeText   = document.getElementById("prizeText");
 const prizeCode   = document.getElementById("prizeCode");
 const saveBtn     = document.getElementById("saveBtn");
+const promoPercent = document.getElementById("promoPercent");
+const promoNicho   = document.getElementById("promoNicho");
+const promoTimer   = document.getElementById("promoTimer");
 const mainPage    = document.querySelector(".container");
 const loginPage   = document.getElementById("loginPage");
 const adminPage   = document.getElementById("adminPage");
@@ -48,6 +51,54 @@ async function carregarCodigoPromo() {
 
 function getCodigoPromo() {
   return codigoPromoCache || "072026-FP";
+}
+
+// ---------- Cronômetro de urgência (8 minutos) ----------
+function iniciarCronometroPromo() {
+  if (!promoTimer) return;
+  const DURACAO = 8 * 60 * 1000; // 8 minutos em ms
+  const timerLabel = document.querySelector(".promo-timer-label");
+
+  // guarda o fim no localStorage para não zerar a cada refresh
+  let fim = parseInt(localStorage.getItem("promoTimerEnd") || "0", 10);
+  const agora = Date.now();
+  if (!fim) {
+    // primeiro acesso: começa a contagem de 8 minutos
+    fim = agora + DURACAO;
+    localStorage.setItem("promoTimerEnd", String(fim));
+  }
+
+  let intervalo = null;
+
+  function encerrar() {
+    promoTimer.textContent = "00:00";
+    if (timerLabel) timerLabel.textContent = "⏱ Oferta encerrada";
+    if (intervalo) clearInterval(intervalo);
+  }
+
+  function tick() {
+    const restante = fim - Date.now();
+    if (restante <= 0) {
+      encerrar();
+      return;
+    }
+    const min = Math.floor(restante / 60000);
+    const seg = Math.floor((restante % 60000) / 1000);
+    promoTimer.textContent =
+      String(min).padStart(2, "0") + ":" + String(seg).padStart(2, "0");
+  }
+
+  tick();
+  intervalo = setInterval(tick, 1000);
+}
+
+// ---------- Banner promocional (percentual + nicho do Supabase) ----------
+async function carregarBannerPromo() {
+  const config = await obterConfiguracoes();
+  const pct = config?.porcentagem_promocao ?? 10;
+  const nicho = config?.nicho_categoria || "Geral";
+  if (promoPercent) promoPercent.textContent = pct + "%";
+  if (promoNicho) promoNicho.textContent = nicho;
 }
 
 // ---------- Desenha a camada "prateada" da raspadinha ----------
@@ -360,6 +411,10 @@ adminSaveAllBtn.addEventListener("click", async () => {
     currentNichoDisplay.textContent = novoNicho;
     currentCodeDisplay.textContent = novoCode;
 
+    // atualiza o banner promocional na hora
+    if (promoPercent) promoPercent.textContent = novaPercentagem + "%";
+    if (promoNicho) promoNicho.textContent = novoNicho;
+
     alert("✓ Todas as configurações foram atualizadas!\n\n" +
           "Percentual: " + novaPercentagem + "%\n" +
           "Nicho: " + novoNicho + "\n" +
@@ -385,7 +440,8 @@ const params = new URLSearchParams(location.search);
 // Modo teste: abra com "?reset"
 if (params.has("reset")) {
   localStorage.removeItem("raspadinha_jogou");
-  setMsg("Registro apagado — você pode jogar de novo. (modo teste)", "success");
+  localStorage.removeItem("promoTimerEnd"); // reinicia o cronômetro de 8 min
+  setMsg("Registro e cronômetro reiniciados — você pode jogar de novo. (modo teste)", "success");
 }
 
 // Modo admin: abra com "?admin"
@@ -399,5 +455,13 @@ carregarCodigoPromo().then(() => {
 }).catch(err => {
   console.error("Erro ao carregar código promocional:", err);
 });
+
+// Carrega o banner promocional (percentual + nicho) do Supabase
+carregarBannerPromo().catch(err => {
+  console.error("Erro ao carregar banner promocional:", err);
+});
+
+// Inicia o cronômetro de urgência (8 minutos)
+iniciarCronometroPromo();
 
 setupCanvas();
