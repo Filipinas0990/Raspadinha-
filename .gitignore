@@ -1,5 +1,5 @@
-# Arquivos de configuração secretos - NUNCA commitar!
-config.secret.js
+# OBS: config.secret.js agora VAI para o deploy (site estático precisa dele
+# no navegador). Como é front-end, os valores são visíveis no código-fonte.
 
 # Node modules (se usar no futuro)
 node_modules/

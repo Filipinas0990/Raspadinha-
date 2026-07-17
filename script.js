@@ -1,5 +1,7 @@
 // CONFIG é mesclado de config.public.js + config.secret.js
-const CONFIG = { ...CONFIG_PUBLIC, ...CONFIG_SECRET };
+// (o "typeof" evita que a página inteira quebre caso config.secret.js não exista no deploy)
+const _SECRET = (typeof CONFIG_SECRET !== "undefined") ? CONFIG_SECRET : {};
+const CONFIG = { ...CONFIG_PUBLIC, ..._SECRET };
 
 const card        = document.getElementById("card");
 const canvas      = document.getElementById("scratchCanvas");
