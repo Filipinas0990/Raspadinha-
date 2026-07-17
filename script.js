@@ -19,6 +19,7 @@ const promoPercent = document.getElementById("promoPercent");
 const promoNicho   = document.getElementById("promoNicho");
 const promoTimer   = document.getElementById("promoTimer");
 const promoDestaque = document.getElementById("promoDestaque");
+const prizeCategoria = document.getElementById("prizeCategoria");
 const mainPage    = document.querySelector(".container");
 const loginPage   = document.getElementById("loginPage");
 const adminPage   = document.getElementById("adminPage");
@@ -113,6 +114,7 @@ async function carregarBannerPromo() {
   if (promoPercent) promoPercent.textContent = pct + "%";
   if (promoNicho) promoNicho.textContent = nicho;
   if (promoDestaque) promoDestaque.textContent = destaque;
+  if (prizeCategoria) prizeCategoria.textContent = nicho; // categoria abaixo da % no prêmio
 }
 
 // ---------- Desenha a camada "prateada" da raspadinha ----------
@@ -436,6 +438,7 @@ adminSaveAllBtn.addEventListener("click", async () => {
     if (promoPercent) promoPercent.textContent = novaPercentagem + "%";
     if (promoNicho) promoNicho.textContent = novoNicho;
     if (promoDestaque) promoDestaque.textContent = novoDestaque;
+    if (prizeCategoria) prizeCategoria.textContent = novoNicho;
 
     alert("✓ Todas as configurações foram atualizadas!\n\n" +
           "Percentual: " + novaPercentagem + "%\n" +

@@ -178,6 +178,14 @@ body::before {
 .prize strong { font-size: 1.25rem; }
 .prize span   { font-size: 0.8rem; opacity: 0.8; }
 
+.prize .prize-cat {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--prize-color);
+  opacity: 1;
+  text-transform: uppercase;
+}
+
 .prize .code {
   margin-top: 4px;
   font-size: 0.85rem;
