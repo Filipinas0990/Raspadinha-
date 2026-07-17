@@ -18,6 +18,7 @@ const saveBtn     = document.getElementById("saveBtn");
 const promoPercent = document.getElementById("promoPercent");
 const promoNicho   = document.getElementById("promoNicho");
 const promoTimer   = document.getElementById("promoTimer");
+const promoDestaque = document.getElementById("promoDestaque");
 const mainPage    = document.querySelector(".container");
 const loginPage   = document.getElementById("loginPage");
 const adminPage   = document.getElementById("adminPage");
@@ -26,6 +27,7 @@ const loginBtn    = document.getElementById("loginBtn");
 const loginError  = document.getElementById("loginError");
 const adminPercentualInput = document.getElementById("adminPercentualInput");
 const adminNichoInput = document.getElementById("adminNichoInput");
+const adminDestaqueInput = document.getElementById("adminDestaqueInput");
 const adminCodeInput = document.getElementById("adminCodeInput");
 const adminSaveAllBtn = document.getElementById("adminSaveAllBtn");
 const adminBackBtn = document.getElementById("adminBackBtn");
@@ -33,6 +35,7 @@ const adminClearBtn = document.getElementById("adminClearBtn");
 const cadastrosList = document.getElementById("cadastrosList");
 const currentPercentualDisplay = document.getElementById("currentPercentual");
 const currentNichoDisplay = document.getElementById("currentNicho");
+const currentDestaqueDisplay = document.getElementById("currentDestaque");
 const currentCodeDisplay = document.getElementById("currentCode");
 const totalCadastrosDisplay = document.getElementById("totalCadastros");
 
@@ -45,6 +48,12 @@ let premioSorteado = null;
 
 // Código promocional: busca do Supabase
 let codigoPromoCache = null;
+
+// Percentual de desconto: busca do Supabase (usado no prêmio da raspadinha)
+let promoPercentualCache = null;
+function getPercentualPromo() {
+  return promoPercentualCache ?? CONFIG.porcentagemDescontoPadrao ?? 10;
+}
 
 async function carregarCodigoPromo() {
   codigoPromoCache = await obterCodigoPromo();
@@ -99,8 +108,11 @@ async function carregarBannerPromo() {
   const config = await obterConfiguracoes();
   const pct = config?.porcentagem_promocao ?? 10;
   const nicho = config?.nicho_categoria || "Geral";
+  const destaque = config?.destaque_promo || "Frete Grátis";
+  promoPercentualCache = pct; // guarda pra usar no prêmio da raspadinha
   if (promoPercent) promoPercent.textContent = pct + "%";
   if (promoNicho) promoNicho.textContent = nicho;
+  if (promoDestaque) promoDestaque.textContent = destaque;
 }
 
 // ---------- Desenha a camada "prateada" da raspadinha ----------
@@ -215,8 +227,9 @@ function setMsg(text, type) {
 }
 
 function sortearPremio() {
-  const i = Math.floor(Math.random() * CONFIG.premios.length);
-  return CONFIG.premios[i];
+  // o prêmio é sempre a % de desconto configurada no painel admin (Supabase)
+  const pct = getPercentualPromo();
+  return { texto: pct + "% de desconto" };
 }
 
 form.addEventListener("submit", (e) => {
@@ -322,14 +335,17 @@ async function carregarAdmin() {
   if (configCache) {
     currentPercentualDisplay.textContent = configCache.porcentagem_promocao || 10;
     currentNichoDisplay.textContent = configCache.nicho_categoria || "Geral";
+    currentDestaqueDisplay.textContent = configCache.destaque_promo || "Frete Grátis";
     currentCodeDisplay.textContent = configCache.codigo_promocional || "-";
 
     adminPercentualInput.value = configCache.porcentagem_promocao || 10;
     adminNichoInput.value = configCache.nicho_categoria || "Geral";
+    adminDestaqueInput.value = configCache.destaque_promo || "Frete Grátis";
     adminCodeInput.value = configCache.codigo_promocional || "";
   } else {
     currentPercentualDisplay.textContent = "10";
     currentNichoDisplay.textContent = "Geral";
+    currentDestaqueDisplay.textContent = "Frete Grátis";
     currentCodeDisplay.textContent = "-";
   }
 
@@ -389,6 +405,7 @@ adminSaveAllBtn.addEventListener("click", async () => {
   const novoCode = adminCodeInput.value.trim();
   const novaPercentagem = adminPercentualInput.value.trim();
   const novoNicho = adminNichoInput.value;
+  const novoDestaque = adminDestaqueInput.value.trim() || "Frete Grátis";
 
   if (!novoCode) {
     alert("Digite um código promocional.");
@@ -403,23 +420,27 @@ adminSaveAllBtn.addEventListener("click", async () => {
   adminSaveAllBtn.disabled = true;
   adminSaveAllBtn.textContent = "Salvando...";
 
-  const sucesso = await atualizarConfiguracoes(novoCode, novaPercentagem, novoNicho);
+  const sucesso = await atualizarConfiguracoes(novoCode, novaPercentagem, novoNicho, novoDestaque);
 
   if (sucesso) {
     codigoPromoCache = novoCode;
-    configCache = { codigo_promocional: novoCode, porcentagem_promocao: parseInt(novaPercentagem), nicho_categoria: novoNicho };
+    promoPercentualCache = parseInt(novaPercentagem);
+    configCache = { codigo_promocional: novoCode, porcentagem_promocao: parseInt(novaPercentagem), nicho_categoria: novoNicho, destaque_promo: novoDestaque };
 
     currentPercentualDisplay.textContent = novaPercentagem;
     currentNichoDisplay.textContent = novoNicho;
+    currentDestaqueDisplay.textContent = novoDestaque;
     currentCodeDisplay.textContent = novoCode;
 
     // atualiza o banner promocional na hora
     if (promoPercent) promoPercent.textContent = novaPercentagem + "%";
     if (promoNicho) promoNicho.textContent = novoNicho;
+    if (promoDestaque) promoDestaque.textContent = novoDestaque;
 
     alert("✓ Todas as configurações foram atualizadas!\n\n" +
           "Percentual: " + novaPercentagem + "%\n" +
           "Nicho: " + novoNicho + "\n" +
+          "Destaque: " + novoDestaque + "\n" +
           "Código: " + novoCode + "\n\n" +
           "Próximos clientes verão as mudanças automaticamente!");
   } else {

@@ -44,7 +44,7 @@ async function obterCodigoPromo() {
 }
 
 // Função para atualizar todas as configurações no Supabase
-async function atualizarConfiguracoes(novoCode, novaPercentagem, novoNicho) {
+async function atualizarConfiguracoes(novoCode, novaPercentagem, novoNicho, novoDestaque) {
   try {
     const response = await fetch(
       `${SUPABASE_CONFIG.url}/rest/v1/config?id=eq.1`,
@@ -58,6 +58,7 @@ async function atualizarConfiguracoes(novoCode, novaPercentagem, novoNicho) {
           codigo_promocional: novoCode,
           porcentagem_promocao: parseInt(novaPercentagem),
           nicho_categoria: novoNicho,
+          destaque_promo: novoDestaque,
           updated_at: new Date().toISOString(),
         }),
       }
@@ -82,6 +83,7 @@ async function atualizarCodigoPromo(novoCode) {
   return await atualizarConfiguracoes(
     novoCode,
     config?.porcentagem_promocao || 10,
-    config?.nicho_categoria || "Geral"
+    config?.nicho_categoria || "Geral",
+    config?.destaque_promo || "Frete Grátis"
   );
 }
